@@ -15,6 +15,9 @@ placeTools.directive('ionGooglePlace', [
                 scope: {
                     searchQuery: '=ngModel',
                     locationChanged: '&',
+                    positionChanged: '&',
+                    enter:'&',
+                    leave:'&',
                     radius: '='
                 },
                 link: function(scope, element, attrs, ngModel) {
@@ -34,6 +37,9 @@ placeTools.directive('ionGooglePlace', [
                         scope.searchQuery = location.description;
                         if (scope.locationChanged) {
                             scope.locationChanged()(location.description);
+                        }
+                        if (scope.positionChanged) {
+                            scope.positionChanged()(location);
                         }
                     };
                     if (!scope.radius) {
@@ -88,9 +94,18 @@ placeTools.directive('ionGooglePlace', [
                         }, 200);
                     };
 
+                    var onFocus = function(e){
+                        scope.enter()();
+                    }
+                     var onBlur = function(e){
+                        scope.leave()();
+                    }
+
                     element.find('input').bind('click', onClick);
                     element.find('input').bind('blur', onCancel);
                     element.find('input').bind('touchend', onClick);
+                    element.find('input').bind('focus',onFocus);
+                    element.find('input').bind('blur',onBlur);
 
 
                     if(attrs.placeholder){
@@ -103,7 +118,7 @@ placeTools.directive('ionGooglePlace', [
 
 // Add flexibility to template directive
 var template = '<div class="item ion-place-tools-autocomplete">' +
-                    '<input type="text" autocomplete="off" ng-model="searchQuery">' +
+                    '<input class="place-autocomplete" type="text" autocomplete="off" ng-model="searchQuery">' +
                     '<div class="ion-place-tools-autocomplete-dropdown" ng-if="dropDownActive">' +
                         '<ion-list>' +
                             '<ion-item ng-repeat="location in locations" ng-click="selectLocation(location)">' +
