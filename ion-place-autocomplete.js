@@ -39,7 +39,14 @@ placeTools.directive('ionGooglePlace', [
                             scope.locationChanged()(location.description);
                         }
                         if (scope.positionChanged) {
-                            scope.positionChanged()(location);
+                            s = new google.maps.places.PlacesService(document.createElement('div'));
+                            s.getDetails({reference:location.reference},  function(details,status){
+                                location.location={
+                                    lat:details.geometry.location.lat(),
+                                    lng: details.geometry.location.lng(),
+                                } 
+                                scope.positionChanged()(location);
+                            })                        
                         }
                     };
                     if (!scope.radius) {
@@ -67,7 +74,7 @@ placeTools.directive('ionGooglePlace', [
                                 req.location = latLng;
                                 req.radius = scope.radius;
                             }
-                            service.getQueryPredictions(req, function (predictions, status) {
+                            service.getPlacePredictions(req,function (predictions, status) {
                                 if (status == google.maps.places.PlacesServiceStatus.OK) {
                                     scope.locations = predictions;
                                     scope.$apply();
